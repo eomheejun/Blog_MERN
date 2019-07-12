@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const gravarta = require("gravatar");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const keys = require("../../config/keys");
 
 const userModel = require("../../models/Users");
 
@@ -43,5 +45,57 @@ router.post('/register', (req, res) => {
         })
         .catch(err => res.json(err));
 });
+
+////@route POST api/users/login
+//@desc login user and return jwt
+//@access Public
+
+router.post('/login', (req,res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    //find user by email
+
+    userModel
+        .findOne({email})
+        .then(user => {
+            if(!user){
+                return res.status(400).json({
+                    msg:"no user"
+                });
+            }else{
+                bcrypt
+                    .compare(password, user.password)
+                    .then(isMatch => {
+                        if(isMatch){
+                            //res.json({msg: 'Success'});
+                            const payload = {id: user.id, name: user.name, avatar: user.avatar};
+
+                            //sign token
+                            jwt.sign(
+                                payload,
+                                keys.secretOrKey,
+                                {expiresIn:3600},
+                                (err, token) => {
+                                    res.json({
+                                        success: true,
+                                        tokeninfo: 'Bearer ' + token
+                                    });
+                                }
+                            );
+                    
+                        }else{
+                            return res.status(400).json({
+                                msg: 'password incorrect'
+                            });
+                        }
+                    })
+                    .catch(err => res.json(err));
+            }
+        })
+        .catch(err => {res.json(err)});
+});
+
+
 
 module.exports = router;
