@@ -1,9 +1,23 @@
 const express = require("express");
+const mongoose = require("mongoose");
+
 const usersRoutes = require("./routes/api/users");
 const profileRoutes = require("./routes/api/profile");
 const postsRoutes = require("./routes/api/posts");
 
 const app = express();
+//DB config
+const db = require("./config/keys").mongoURI;
+
+//connect to Mongo
+
+mongoose
+    .connect(db, {
+        useNewUrlParser: true,
+        useCreateIndex: true
+    })
+    .then(() => console.log('MongoDB connectes..'))
+    .catch(err => console.log(err));
 
 //Use Routes
 app.use('/api/users', usersRoutes);
