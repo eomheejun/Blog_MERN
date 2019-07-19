@@ -7,6 +7,8 @@ const authcheck = passport.authenticate('jwt', {session: false});
 const userModel = require('../../models/Users');
 const profileModel = require('../../models/profile');
 
+const validateProfileInput = require('../../validation/profile');
+
 
 //@route GET api/profile
 //@desc Get current users profile
@@ -17,6 +19,7 @@ router.get('/', authcheck, (req,res) => {
 
     profileModel
         .findOne({user: req.user.id})
+        .populate('user', ['name','avatar'])
         .then(profile =>{
             if(!profile){
                 errors.noprofile = 'there is no profile';
@@ -32,6 +35,14 @@ router.get('/', authcheck, (req,res) => {
 //@access Private
 
 router.post('/', authcheck, (req, res) => {
+
+    const {errors, isValid} = validateProfileInput(req.body);//맞으면 이상없고 틀리면 errors에 내용이담김
+
+    //check valdiation
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
     const profileFields = {};
     profileFields.user = req.user.id;
 
@@ -57,6 +68,16 @@ router.post('/', authcheck, (req, res) => {
         .then(profile =>{
             if(profile){
                 //update
+                profileModel
+                    .findOneAndUpdate(
+                        {user: req.user.id},
+                        {$set: profileFields},
+                        {new: true}
+                    )
+                    .then(profile => res.json(profile))
+                    .catch(err => res.json(err));
+
+
 
             }else{
                 //check if handle exists
@@ -69,6 +90,7 @@ router.post('/', authcheck, (req, res) => {
                         }
                         new profileModel(profileFields)
                         .save()
+                        .populate('user', ['name','avatar'])
                         .then(profile => res.json(profile))
                         .catch(err => res.json(err));
                     })
