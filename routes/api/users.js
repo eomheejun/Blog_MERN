@@ -4,6 +4,8 @@ const gravarta = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
+const passport = require('passport');
+const authcheck = passport.authenticate('jwt', {session: false}); 
 
 const userModel = require("../../models/Users");
 
@@ -17,8 +19,10 @@ router.post('/register', (req, res) => {
         .then(user => {
             if(user) {
                 return res.status(400).json({
-                    msg: "Email 있음"
-                })
+                    msg: 
+                    
+                    "Email 있음"
+                });
             }else{
                 const avatar = gravarta.url(req.body.email, {
                     s:'200', //size
@@ -96,6 +100,15 @@ router.post('/login', (req,res) => {
         .catch(err => {res.json(err)});
 });
 
-
+//@route GET api/users/current
+//@desc Return current user
+//@acccess Private
+router.get('/current',authcheck, (req, res) => {
+    res.json({
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email
+    });
+});
 
 module.exports = router;
