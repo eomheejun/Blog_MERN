@@ -7,6 +7,7 @@ const keys = require("../../config/keys");
 const passport = require('passport');
 const authcheck = passport.authenticate('jwt', {session: false}); 
 const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 
 const userModel = require("../../models/Users");
@@ -68,6 +69,16 @@ router.post('/register', (req, res) => {
 //@access Public
 
 router.post('/login', (req,res) => {
+    
+    const {errors, isValid} = validateLoginInput(req.body);
+
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
+
+
+
     const email = req.body.email;
     const password = req.body.password;
 
@@ -77,9 +88,13 @@ router.post('/login', (req,res) => {
         .findOne({email})
         .then(user => {
             if(!user){
-                return res.status(400).json({
-                    msg:"no user"
-                });
+
+                errors.user = "no user";
+
+                return res.status(400).json(errors);
+                // return res.status(400).json({
+                //     msg:"no user"
+                // });
             }else{
                 bcrypt
                     .compare(password, user.password)
@@ -102,9 +117,11 @@ router.post('/login', (req,res) => {
                             );
                     
                         }else{
-                            return res.status(400).json({
-                                msg: 'password incorrect'
-                            });
+                            errors.msg = "password incorrect";
+                            return res.status(400).json(errors);
+                            // return res.status(400).json({
+                            //     msg: 'password incorrect'
+                            // });
                         }
                     })
                     .catch(err => res.json(err));
