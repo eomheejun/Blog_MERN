@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require('passport');
 const authcheck = passport.authenticate('jwt', {session: false}); 
+const validateRegisterInput = require('../../validation/register');
+
 
 const userModel = require("../../models/Users");
 
@@ -14,15 +16,24 @@ const userModel = require("../../models/Users");
 //@access Public
 
 router.post('/register', (req, res) => {
+
+    const {errors, isValid} = validateRegisterInput(req.body);
+    
+    //check validation
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
+
     userModel 
         .findOne({email: req.body.email})
         .then(user => {
             if(user) {
-                return res.status(400).json({
-                    msg: 
-                    
-                    "Email 있음"
-                });
+                errors.email = 'Email already exists';
+                return res.status(400).json(errors);
+                // return res.status(400).json({
+                //     msg: "Email 있음"
+                // });
             }else{
                 const avatar = gravarta.url(req.body.email, {
                     s:'200', //size
@@ -49,6 +60,8 @@ router.post('/register', (req, res) => {
         })
         .catch(err => res.json(err));
 });
+
+
 
 ////@route POST api/users/login
 //@desc login user and return jwt
@@ -99,6 +112,8 @@ router.post('/login', (req,res) => {
         })
         .catch(err => {res.json(err)});
 });
+
+
 
 //@route GET api/users/current
 //@desc Return current user
