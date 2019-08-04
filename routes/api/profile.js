@@ -7,6 +7,7 @@ const authcheck = passport.authenticate('jwt', {session: false});
 const userModel = require('../../models/Users');
 const profileModel = require('../../models/profile');
 const validateEducationInput = require('../../validation/education');
+const validateExperienceInput = require('../../validation/experience');
 
 const validateProfileInput = require('../../validation/profile');
 
@@ -203,6 +204,42 @@ router.post('/education', authcheck, (req, res) => {
 
 });
 
+//@route POST api/profile/experience 
+//@desc Add experience to profile
+//@access Private
+
+router.post('/experience', authcheck, (req,res) => {
+    const {errors, isValid} = validateExperienceInput(req.body);
+
+    //check validation
+
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
+    profileModel
+        .findOne({user: req.user.id})
+        .then(profile => {
+            const Exp = {
+                title: req.body.title,
+                company: req.body.company,
+                location: req.body.location,
+                from: req.body.from,
+                to: req.body.to,
+                current: req.body.current,
+                description: req.body.description
+            };
+            //Add to exp array
+            
+            profile.experience.unshift(Exp);
+            profile
+                .save()
+                .then(profile => res.json(profile))
+                .catch(err => console.log(err));
+
+        })
+        .catch(err => console.log(err));
+});
 
 
 module.exports = router;
