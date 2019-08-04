@@ -121,4 +121,43 @@ router.get('/all', (req, res) => {
 
 });
 
+//@route GET api/profile/user/:user_id
+//@desc Get profile by User ID
+//@access public
+
+router.get('/user/:user_id', (req, res) => {
+    const error = {};
+
+    profileModel
+        .findOne({user: req.params.user_id})
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if(!profile){
+                errors.msg = 'no profile'
+                return res.status(404).json(errors);
+            }
+            res.json(profile);
+        })
+        .catch(err => console.log(err));
+});
+
+//@route GET api/profile/handle/:handle_id
+//@desc Get profile by handle
+//@access public
+
+router.get('/handle/:handle', (req, res) => {
+    const error = {};
+
+    profileModel
+        .findOne({handle: req.params.handle})
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if(!profile){
+                errors.msg = 'no profile'
+                return res.status(404).json(errors);
+            }
+            res.json(profile);
+        })
+        .catch(err => console.log(err));
+});
 module.exports = router;
