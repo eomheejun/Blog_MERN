@@ -101,5 +101,24 @@ router.post('/', authcheck, (req, res) => {
 
 });
 
+//@route GET api/profile/all
+//@desc Get all profiles
+//@access Public
+
+router.get('/all', (req, res) => {
+    const error = {};
+    profileModel
+        .find()
+        .populate('user', ['name', 'avatar'])
+        .then(profiles => {
+            if(!profiles){
+                errors.msg = 'there are no profiles';
+                return res.status(404).json(errors);
+            }
+            res.json(profiles);
+        })
+        .catch(err => console.log(err));
+
+});
 
 module.exports = router;
