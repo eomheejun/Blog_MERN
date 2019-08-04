@@ -242,4 +242,64 @@ router.post('/experience', authcheck, (req,res) => {
 });
 
 
+//@route DELETE api/profile/experience/:exp_id
+//@desc Delete experience from profile
+//@access Private
+
+router.delete('/experience/:exp_id', authcheck, (req, res) => {
+
+    profileModel
+        .findOne({user: req.user.id})
+        .then(profile => {
+            //get REMOVE index
+
+            const removeIndex = profile.experience
+                .map(item => item.id)
+                .indexOf(req.params.exp_id);
+
+            //splice out of array
+
+            profile.experience.splice(removeIndex, 1);
+
+            //save
+
+            profile
+                .save()
+                .then(profile => res.json(profile))
+                .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
+
+});
+
+//@route DELETE api/profile/education/:edu_id
+//@desc Delete education from profile
+//@access Private
+
+router.delete('/education/:edu_id', authcheck, (req, res) => {
+
+    profileModel
+        .findOne({user: req.user.id})
+        .then(profile => {
+            //get REMOVE index
+
+            const removeIndex = profile.education
+                .map(item => item.id)
+                .indexOf(req.params.edu_id);
+
+            //splice out of array
+
+            profile.education.splice(removeIndex, 1);
+
+            //save
+
+            profile
+                .save()
+                .then(profile => res.json(profile))
+                .catch(err => console.log(err));  
+        })
+        .catch(err => console.log(err));
+  
+});
+
 module.exports = router;
