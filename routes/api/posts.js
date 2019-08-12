@@ -44,5 +44,20 @@ router.post('/', authcheck, (req, res) => {
         .catch(err => res.json(err));
 });
 
+//@route GET api/posts
+//@desc show post
+//@access Private
+
+router.get('/', authcheck, (req, res) => {
+    postModel
+        .find()
+        .sort({ date: -1})
+        .then(posts => res.json({
+            count: posts.length,
+            posts: posts
+        }))
+        .catch(err => res.json(err))
+});
+
 
 module.exports = router;
