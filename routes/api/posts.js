@@ -164,4 +164,64 @@ router.post('/unlike/:post_id', authcheck, (req, res) => {
         
 });
 
+//@route POST api/posts/comment/:post_id
+//@desc add comment to post
+//@access Private
+
+router.post('/comment/:post_id', authcheck, (req, res) => {
+    const {errors, isValid} = validatePostInput(req.body);
+
+    if(!isValid) {
+        return res.status(400).json({
+            msg: errors
+        });
+    };
+
+    postModel
+        .findById(req.params.post_id)
+        .then(post => {
+            const newComment = {
+                text: req.body.text,
+                name: req.user.name,
+                avatar: req.user.avatar,
+                user: req.user.id
+            };
+
+            //add to comment unshift
+
+            post.comments.unshift(newComment);
+            post
+                .save()
+                .then(post => res.json(post));
+
+        })
+        .catch(err => res.json(err));
+});
+
+//@route DELETE api/posts/comment/:post_id/:comment_id
+//@desc remove comment to post
+//@access Private
+
+router.delete('/comment/:post_id/:comment_id', authcheck, (req, res) => {
+    postModel
+        .findById(req.params.post_id)
+        .then(post => {
+            if(post.comments.filter(comment => comment._id.toString() === req.params.comment_id).length === 0) {
+                return res.status(404).json({
+                    msg: 'comment does not exist'
+                });
+            }
+
+            const removeIndex = post.comments
+                .map(item => item._id.toString())
+                .indexOf(req.params.comment_id);
+
+            post.comments.splice(removeIndex, 1);
+            post    
+                .save()
+                .then(post => res.json(post));
+        });
+
+});
+
 module.exports = router;
