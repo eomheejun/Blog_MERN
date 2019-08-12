@@ -6,7 +6,7 @@ const router = express.Router();
 //Post model
 
 const postModel = require('../../models/post');
-const userModel = require("../../models/Users");
+const profileModel = require("../../models/profile");
 
 //validation
 
@@ -64,8 +64,8 @@ router.get('/', authcheck, (req, res) => {
 //@desc delete post
 //@access Private
 
-router.delete('/posts/:id', authcheck, (req, res) => {
-    userModel
+router.delete('/:id', authcheck, (req, res) => {
+    profileModel
         .findOne({user: req.user.id})
         .then(profile => {
             postModel
