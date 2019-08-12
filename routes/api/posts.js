@@ -6,6 +6,7 @@ const router = express.Router();
 //Post model
 
 const postModel = require('../../models/post');
+const userModel = require("../../models/Users");
 
 //validation
 
@@ -59,5 +60,40 @@ router.get('/', authcheck, (req, res) => {
         .catch(err => res.json(err))
 });
 
+//@route delete api/posts/:id
+//@desc delete post
+//@access Private
+
+router.delete('/posts/:id', authcheck, (req, res) => {
+    userModel
+        .findOne({user: req.user.id})
+        .then(profile => {
+            postModel
+                .findById(req.params.id)
+                .then(post => {
+                    if(post.user.toString() !== req.user.id) {
+                        return res.status(401).json({
+                            msg: 'user not authorized'
+                        });
+                    }
+                    post
+                        .remove()
+                        .then(() => res.json({msg: 'successful delete'}));
+
+                })
+                .catch(err => res.json(err));
+        });
+});
+
+//@route get api/posts/:id
+//@desc detail post
+//@access Private
+
+router.get('/:id', authcheck, (req, res)=>{
+    postModel
+        .findById(req.params.id)
+        .then(post => res.json(post))
+        .catch(err => res.json(err));
+});
 
 module.exports = router;
