@@ -1,14 +1,16 @@
 import React from 'react';
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
+import Landing from "./components/layout/Landing";
 
 
 function App() {
   return (
     <div className="App">
       <Navbar/>
-      <h1>hi</h1>
+      <Landing/>
       <Footer/>
+
     </div>
 
   );
