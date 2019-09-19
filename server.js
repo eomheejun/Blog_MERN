@@ -41,7 +41,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/posts', postsRoutes);
 
 
-const PORT = process.env.PORT || 3000;//따로지정하는 번호가 있으면 왼쪽
+const PORT = process.env.PORT || 5000;//따로지정하는 번호가 있으면 왼쪽
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
